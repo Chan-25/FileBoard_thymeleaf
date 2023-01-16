@@ -172,17 +172,17 @@ public class FileBoardController {
         if(!skip) {
             //IE
             if(client.indexOf("MSIE") != -1) {
-            response.setHeader("Content-Disposition", "attachment; filename=\"" 
-                + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" 
+                    + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
             //IE 11 이상
             } else if (client.indexOf("Trident") != -1) {
-            response.setHeader("Content-Disposition", "attachment; filename=\""
-                + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
+                response.setHeader("Content-Disposition", "attachment; filename=\""
+                    + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
             //한글 파일명 처리
             } else {
-            response.setHeader("Content-Disposition", "attachment; filename=\"" 
-                + new String(originFileName.getBytes("UTF-8"), "ISO8859_1") + "\"");
-            response.setHeader("Content-Type", "application/octet-stream; charset=utf-8");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" 
+                    + new String(originFileName.getBytes("UTF-8"), "ISO8859_1") + "\"");
+                response.setHeader("Content-Type", "application/octet-stream; charset=utf-8");
             }
             
             response.setHeader("Content-Length", ""+file.length());
@@ -191,7 +191,7 @@ public class FileBoardController {
             int leng = 0;
 
             while ((leng = in.read(b)) > 0) {
-            os.write(b, 0, leng);
+                os.write(b, 0, leng);
             }
         } else {
             response.setContentType("text/html; charset=UTF-8");
