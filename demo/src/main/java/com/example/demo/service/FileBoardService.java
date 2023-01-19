@@ -16,4 +16,7 @@ public interface FileBoardService {
     int fileInsert(FileVO file);
     //파일 다운로드 메서드 추가
     FileVO fileDetail(int b_no);
+    int fileDelete(int b_no);
+    int fileUpdate(FileVO file);
+    FileVO confirmFile(int b_no);
 }

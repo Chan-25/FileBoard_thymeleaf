@@ -69,22 +69,84 @@ public class FileBoardController {
     @RequestMapping("/update/{b_no}")
     private String fileBoardUpdateForm(@PathVariable("b_no") int b_no, Model model) {
         model.addAttribute("detail", fboardService.fileBoardDetail(b_no));
+        if(fboardService.fileDetail(b_no) != null)
+        {
+            model.addAttribute("file", fboardService.fileDetail(b_no));
+        }
         return "fileBoard/update";
     }
     
     @RequestMapping("/updateProc")
-    private String fileBoardUpdateProc(@ModelAttribute FileBoardVO board) {
+    private String fileBoardUpdateProc(@ModelAttribute FileBoardVO board, @RequestPart MultipartFile
+        files, HttpServletRequest request, Model model) throws IllegalStateException, IOException, Exception  {
         
-        fboardService.fileBoardUpdate(board);
-        int bno = board.getB_no();
-        String b_no = Integer.toString(bno);
-        return "redirect:/fileBoard/detail/"+b_no;
+        if(files.isEmpty())
+        {
+            fboardService.fileBoardUpdate(board);
+            int bno = board.getB_no();
+            String b_no = Integer.toString(bno);
+            return "redirect:/fileBoard/detail/"+b_no;
+        }
+        else
+        {
+            String fileName = files.getOriginalFilename(); // 사용자 컴에 저장된 파일명 그대로
+            //확장자
+            String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
+            File destinationFile; // DB에 저장할 파일 고유명
+            String destinationFileName;
+            //절대경로 설정 안해주면 지 맘대로 들어가버려서 절대경로 박아주었습니다.
+            String fileUrl = "C:/Users/smhrd/Desktop/기업랩 과제/FileStorage/";
+
+            do 
+            { //우선 실행 후
+                //고유명 생성
+                destinationFileName = RandomStringUtils.randomAlphanumeric(32) + "." + fileNameExtension;
+                destinationFile = new File(fileUrl + destinationFileName); //합쳐주기
+                System.out.println(destinationFile);
+            }
+            while (destinationFile.exists()); 
+
+            destinationFile.getParentFile().mkdirs(); //디렉토리
+            files.transferTo(destinationFile);
+
+            FileVO file = new FileVO();
+            file.setB_no(board.getB_no());
+            file.setFilename(destinationFileName);
+            file.setFileoriginname(fileName);
+            file.setFileurl(fileUrl);
+            
+            if(fboardService.confirmFile(board.getB_no()) == null)
+            {
+                fboardService.fileInsert(file);
+            }
+            else
+            {
+                fboardService.fileUpdate(file);
+            }
+
+            fboardService.fileBoardUpdate(board);
+
+            int bno = board.getB_no();
+            String b_no = Integer.toString(bno);
+
+            model.addAttribute("file", file);
+
+            return "redirect:/fileBoard/detail/"+b_no;
+        }
+        
+        
     }
     
     @RequestMapping("/delete/{b_no}")
     private String fileBoardDelete(@PathVariable("b_no") int b_no) {
         fboardService.fileBoardDelete(b_no);
         return "redirect:/fileBoard/list";
+    }
+
+    @RequestMapping("/deleteFile/{b_no}")
+    private String fileDelete(@PathVariable("b_no") int b_no) {
+        fboardService.fileDelete(b_no);
+        return "redirect:/fileBoard/update/"+b_no;
     }
 
     @RequestMapping("/insertProc")
@@ -135,74 +197,74 @@ public class FileBoardController {
     private void fileDown(@PathVariable("b_no") int b_no, HttpServletRequest request, 
         HttpServletResponse response) throws UnsupportedEncodingException, Exception {
  
-    request.setCharacterEncoding("UTF-8");
-    FileVO fileVO = fboardService.fileDetail(b_no);
-    
-    //파일 업로드 경로
-    try {
-        String fileUrl = fileVO.getFileurl();
-        System.out.println(fileUrl);
-        fileUrl += "/";
-        String savePath = fileUrl;
-        String fileName = fileVO.getFilename();
-
-        //실제 내보낼 파일명
-        String originFileName = fileVO.getFileoriginname();
-        InputStream in = null;
-        OutputStream os = null;
-        File file= null;
-        Boolean skip = false;
-        String client = "";
+        request.setCharacterEncoding("UTF-8");
+        FileVO fileVO = fboardService.fileDetail(b_no);
         
-        //파일을 읽어 스트림에 담기
+        //파일 업로드 경로
         try {
-            file = new File(savePath, fileName);
-            in = new FileInputStream(file);
-        } catch (FileNotFoundException fe) {
-            skip = true;
-        } 
+            String fileUrl = fileVO.getFileurl();
+            System.out.println(fileUrl);
+            fileUrl += "/";
+            String savePath = fileUrl;
+            String fileName = fileVO.getFilename();
 
-        client = request.getHeader("User-Agent");
-        
-        //파일 다운로드 헤더 지정
-        response.reset();
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Description", "HTML Generated Data");
+            //실제 내보낼 파일명
+            String originFileName = fileVO.getFileoriginname();
+            InputStream in = null;
+            OutputStream os = null;
+            File file= null;
+            Boolean skip = false;
+            String client = "";
+            
+            //파일을 읽어 스트림에 담기
+            try {
+                file = new File(savePath, fileName);
+                in = new FileInputStream(file);
+            } catch (FileNotFoundException fe) {
+                skip = true;
+            } 
 
-        if(!skip) {
-            //IE
-            if(client.indexOf("MSIE") != -1) {
-                response.setHeader("Content-Disposition", "attachment; filename=\"" 
-                    + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
-            //IE 11 이상
-            } else if (client.indexOf("Trident") != -1) {
-                response.setHeader("Content-Disposition", "attachment; filename=\""
-                    + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
-            //한글 파일명 처리
+            client = request.getHeader("User-Agent");
+            
+            //파일 다운로드 헤더 지정
+            response.reset();
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Description", "HTML Generated Data");
+
+            if(!skip) {
+                //IE
+                if(client.indexOf("MSIE") != -1) {
+                    response.setHeader("Content-Disposition", "attachment; filename=\"" 
+                        + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
+                //IE 11 이상
+                } else if (client.indexOf("Trident") != -1) {
+                    response.setHeader("Content-Disposition", "attachment; filename=\""
+                        + java.net.URLEncoder.encode(originFileName, "UTF-8").replaceAll("\\+", "\\ ") + "\"");
+                //한글 파일명 처리
+                } else {
+                    response.setHeader("Content-Disposition", "attachment; filename=\"" 
+                        + new String(originFileName.getBytes("UTF-8"), "ISO8859_1") + "\"");
+                    response.setHeader("Content-Type", "application/octet-stream; charset=utf-8");
+                }
+                
+                response.setHeader("Content-Length", ""+file.length());
+                os = response.getOutputStream();
+                byte b[] = new byte[(int) file.length()];
+                int leng = 0;
+
+                while ((leng = in.read(b)) > 0) {
+                    os.write(b, 0, leng);
+                }
             } else {
-                response.setHeader("Content-Disposition", "attachment; filename=\"" 
-                    + new String(originFileName.getBytes("UTF-8"), "ISO8859_1") + "\"");
-                response.setHeader("Content-Type", "application/octet-stream; charset=utf-8");
+                response.setContentType("text/html; charset=UTF-8");
+                PrintWriter out = response.getWriter();
+                out.println("<script> alert('파일을 찾을 수 없습니다.'); history.back(); </script>");
+                out.flush();
             }
             
-            response.setHeader("Content-Length", ""+file.length());
-            os = response.getOutputStream();
-            byte b[] = new byte[(int) file.length()];
-            int leng = 0;
-
-            while ((leng = in.read(b)) > 0) {
-                os.write(b, 0, leng);
-            }
-        } else {
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-            out.println("<script> alert('파일을 찾을 수 없습니다.'); history.back(); </script>");
-            out.flush();
-        }
-        
-        in.close();
-        os.close();
-        
+            in.close();
+            os.close();
+            
         } catch (Exception e) {
             System.out.println("ERROR : " + e.getStackTrace());
         }

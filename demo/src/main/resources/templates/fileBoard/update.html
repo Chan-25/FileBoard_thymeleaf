@@ -11,7 +11,7 @@
             <h1><a th:href="@{/fileBoard/list}" style="text-decoration: none;">게시글 수정</a></h1>
         </div>
         <div>
-            <form role="form" th:object="${fileBoardVO}" th:action="@{/fileBoard/updateProc}" method="post">
+            <form role="form" th:object="${fileBoardVO}" th:action="@{/fileBoard/updateProc}" method="post" enctype="multipart/form-data">
             <div>
                 <label for="title" style="font-weight: bolder;">제목</label>
                 <input type="text" id="title" name="title" th:value="${detail.title}">
@@ -26,6 +26,18 @@
                     [[${detail.content}]]
                 </textarea>
             </div>
+            <div>
+                <input type="file" name="files">
+                <!-- <div th:if="${file}">
+                    <span th:text="${file.fileoriginname}">첨부파일명</span>
+                    <a th:href="@{/fileBoard/deleteFile/{bno}(bno=${file.b_no})}">X</a>
+                </div> -->
+
+                <div class="showFile">
+                    <span th:text="${file.fileoriginname}">첨부파일명</span>
+                    <button onclick="showFileControll()">X</button>
+                </div>
+            </div>
             <div style="text-align: right;">
                 <input type="hidden" name="b_no" th:value="${detail.b_no}">
                 <input type="submit" th:value="목록" th:formaction="@{/fileBoard/list}">
@@ -36,5 +48,19 @@
         </div>
         <br/><br/><br/>
         </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.3.slim.js" integrity="sha256-DKU1CmJ8kBuEwumaLuh9Tl/6ZB6jzGOBV/5YpNE2BWc=" crossorigin="anonymous"></script>
+        <script>
+            function showFileControll(){
+                let b_no = /*[[${file.b_no}]]*/
+                console.log(b_no);
+                $.ajax({
+                    url: "/fileBoard/deleteFile/"+ b_no,
+                    success: function(data){
+                        $(".showFile").css("display","none");
+                    }
+                })
+            }
+        </script>
     </body>
 </html>

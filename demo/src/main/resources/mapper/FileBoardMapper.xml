@@ -46,5 +46,17 @@
   <select id="fileDetail" parameterType="int" resultType="com.example.demo.bean.FileVO">
     SELECT * FROM file WHERE b_no=#{b_no}
   </select>
+
+  <delete id="fileDelete" parameterType="int">
+    DELETE FROM file WHERE b_no=#{b_no}
+  </delete>
+
+  <update id="fileUpdate" parameterType="com.example.demo.bean.FileVO">
+    UPDATE file SET filename=#{filename}, fileoriginname=#{fileoriginname}, fileurl=#{fileurl} WHERE b_no=#{b_no}
+  </update>
+
+  <select id="confirmFile" parameterType="int" resultType="com.example.demo.bean.FileVO">
+    SELECT * FROM file WHERE b_no=#{b_no}
+  </select>
   
 </mapper>
