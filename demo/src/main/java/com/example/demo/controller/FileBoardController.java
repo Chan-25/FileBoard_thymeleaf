@@ -117,7 +117,7 @@ public class FileBoardController {
 
             if(fboardService.fileDetail(board.getB_no()) == null)
             {
-                fboardService.fileInsert(file);
+                fboardService.fileDetailUpdate(file);
             }
             else
             {
