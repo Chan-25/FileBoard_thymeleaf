@@ -14,14 +14,13 @@ public class ShowFileController {
     @Autowired
     FileBoardService fileBoardService;
 
-    @RequestMapping("/showFileName/{b_no}")
-    private String showFileName(@PathVariable int b_no)
+    @RequestMapping("/deleteFileJ/{b_no}")
+    private void delFileJ(@PathVariable int b_no)
     {
-        if(fileBoardService.confirmFile(b_no) != null)
-        {
-            return fileBoardService.fileDetail(b_no).getFilename();
-        }
-        return null;
+        int row = fileBoardService.fileDelete(b_no);
+
+        if(row > 0)
+            System.out.println("file 삭제 성공");
     }
     
 }

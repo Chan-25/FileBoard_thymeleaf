@@ -114,8 +114,8 @@ public class FileBoardController {
             file.setFilename(destinationFileName);
             file.setFileoriginname(fileName);
             file.setFileurl(fileUrl);
-            
-            if(fboardService.confirmFile(board.getB_no()) == null)
+
+            if(fboardService.fileDetail(board.getB_no()) == null)
             {
                 fboardService.fileInsert(file);
             }
@@ -153,6 +153,7 @@ public class FileBoardController {
     private String fileBoardInsertProc(@ModelAttribute FileBoardVO board, @RequestPart MultipartFile
         files, HttpServletRequest request) throws IllegalStateException, IOException, Exception 
     {
+        System.out.println(board.getB_no());
         if(files.isEmpty()) 
         {
             fboardService.fileBoardInsert(board);
@@ -179,6 +180,8 @@ public class FileBoardController {
             destinationFile.getParentFile().mkdirs(); //디렉토리
             files.transferTo(destinationFile);
 
+            System.out.println(board.getB_no());
+
             fboardService.fileBoardInsert(board);
 
             FileVO file = new FileVO();
@@ -186,6 +189,8 @@ public class FileBoardController {
             file.setFilename(destinationFileName);
             file.setFileoriginname(fileName);
             file.setFileurl(fileUrl);
+
+            System.out.println(file.getB_no());
             
             fboardService.fileInsert(file);
         }

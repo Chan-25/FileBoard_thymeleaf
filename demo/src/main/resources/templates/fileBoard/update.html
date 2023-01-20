@@ -33,9 +33,9 @@
                     <a th:href="@{/fileBoard/deleteFile/{bno}(bno=${file.b_no})}">X</a>
                 </div> -->
 
-                <div class="showFile">
+                <div class="showFile" th:if="${file}">
                     <span th:text="${file.fileoriginname}">첨부파일명</span>
-                    <button onclick="showFileControll()">X</button>
+                    <button type="button" onclick="showFileControll()">X</button>
                 </div>
             </div>
             <div style="text-align: right;">
@@ -49,18 +49,24 @@
         <br/><br/><br/>
         </div>
 
-        <script src="https://code.jquery.com/jquery-3.6.3.slim.js" integrity="sha256-DKU1CmJ8kBuEwumaLuh9Tl/6ZB6jzGOBV/5YpNE2BWc=" crossorigin="anonymous"></script>
-        <script>
+        <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+        <script th:inline="javascript" th:if="${file}">
+            /*<![CDATA[*/
             function showFileControll(){
-                let b_no = /*[[${file.b_no}]]*/
+                let b_no = /*[[${file.b_no}]]*/;
                 console.log(b_no);
                 $.ajax({
-                    url: "/fileBoard/deleteFile/"+ b_no,
+                    url: "/fileBoard/deleteFileJ/"+b_no,
                     success: function(data){
+                        console.log("통신성공")
                         $(".showFile").css("display","none");
+                    },
+                    error: function(e){
+                        console.log("통신실패")
                     }
                 })
             }
+            /*]]>*/
         </script>
     </body>
 </html>

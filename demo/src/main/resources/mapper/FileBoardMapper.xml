@@ -21,11 +21,7 @@
   </insert>
   
   <update id="fileBoardUpdate" parameterType="com.example.demo.bean.FileBoardVO">
-    UPDATE file_board SET
-    <if test="title != null">title=#{title}</if>
-    <if test="title != null and content != null">,</if>
-    <if test="content != null">content=#{content}</if>
-    WHERE b_no=#{b_no}
+    UPDATE file_board SET title=#{title}, content=#{content} WHERE b_no=#{b_no}
   </update>
   
   <delete id="fileBoardDelete" parameterType="int">
@@ -42,6 +38,11 @@
     VALUES(#{b_no}, #{filename}, #{fileoriginname}, #{fileurl})
   </insert>
 
+  <insert id="fileDetailUpdate" parameterType="com.example.demo.bean.FileVO">
+    INSERT INTO file(b_no, filename, fileoriginname, fileurl) 
+    VALUES(#{b_no}, #{filename}, #{fileoriginname}, #{fileurl})
+  </insert>
+
   <!-- 파일 다운로드 내용 추가 -->  
   <select id="fileDetail" parameterType="int" resultType="com.example.demo.bean.FileVO">
     SELECT * FROM file WHERE b_no=#{b_no}
@@ -54,9 +55,5 @@
   <update id="fileUpdate" parameterType="com.example.demo.bean.FileVO">
     UPDATE file SET filename=#{filename}, fileoriginname=#{fileoriginname}, fileurl=#{fileurl} WHERE b_no=#{b_no}
   </update>
-
-  <select id="confirmFile" parameterType="int" resultType="com.example.demo.bean.FileVO">
-    SELECT * FROM file WHERE b_no=#{b_no}
-  </select>
   
 </mapper>

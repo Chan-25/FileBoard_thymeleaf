@@ -63,8 +63,8 @@ public class FileBoardServiceImpl implements FileBoardService {
     }
 
     @Override
-    public FileVO confirmFile(int b_no) {
-        return fileboardmapper.confirmFile(b_no);
+    public int fileDetailUpdate(FileVO file) {
+        return fileboardmapper.fileDetailUpdate(file);
     }
     
 }
