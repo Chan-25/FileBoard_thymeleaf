@@ -35,6 +35,8 @@ public class FileBoardController {
   
     @Autowired
     FileBoardService fboardService;
+
+    private String fileUrl = "C:/Users/smhrd/Desktop/기업랩 과제/FileStorage/";
     
     @RequestMapping("/list")
     private String fileBoardList(Model model, HttpServletRequest request) {
@@ -121,6 +123,21 @@ public class FileBoardController {
             }
             else
             {
+                String filename = fboardService.fileDetail(board.getB_no()).getFilename();
+
+                File deletedFile = new File(fileUrl+filename);
+                if(deletedFile.exists())
+                {
+                    if(deletedFile.delete())
+                    {
+                        System.out.println("로컬파일 삭제 성공");
+                    }
+                    else
+                    {
+                        System.out.println("로컬파일 삭제 실패");
+                    }
+                }
+
                 fboardService.fileUpdate(file);
             }
 
@@ -139,13 +156,46 @@ public class FileBoardController {
     
     @RequestMapping("/delete/{b_no}")
     private String fileBoardDelete(@PathVariable("b_no") int b_no) {
+
+        String filename = fboardService.fileDetail(b_no).getFilename();
+
+        File deletedFile = new File(fileUrl+filename);
+        if(deletedFile.exists())
+        {
+            if(deletedFile.delete())
+            {
+                System.out.println("로컬파일 삭제 성공");
+            }
+            else
+            {
+                System.out.println("로컬파일 삭제 실패");
+            }
+        }
+
         fboardService.fileBoardDelete(b_no);
         return "redirect:/fileBoard/list";
     }
 
     @RequestMapping("/deleteFile/{b_no}")
     private String fileDelete(@PathVariable("b_no") int b_no) {
+
+        String filename = fboardService.fileDetail(b_no).getFilename();
+
+        File deletedFile = new File(fileUrl+filename);
+        if(deletedFile.exists())
+        {
+            if(deletedFile.delete())
+            {
+                System.out.println("로컬파일 삭제 성공");
+            }
+            else
+            {
+                System.out.println("로컬파일 삭제 실패");
+            }
+        }
+        
         fboardService.fileDelete(b_no);
+
         return "redirect:/fileBoard/update/"+b_no;
     }
 
@@ -166,7 +216,6 @@ public class FileBoardController {
             File destinationFile; // DB에 저장할 파일 고유명
             String destinationFileName;
             //절대경로 설정 안해주면 지 맘대로 들어가버려서 절대경로 박아주었습니다.
-            String fileUrl = "C:/Users/smhrd/Desktop/기업랩 과제/FileStorage/";
 
             do 
             { //우선 실행 후
