@@ -66,5 +66,9 @@ public class FileBoardServiceImpl implements FileBoardService {
     public int fileDetailUpdate(FileVO file) {
         return fileboardmapper.fileDetailUpdate(file);
     }
+
+    public List<FileVO> getFileList(){
+        return fileboardmapper.getFileList();
+    }
     
 }

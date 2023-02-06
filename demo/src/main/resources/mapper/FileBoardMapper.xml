@@ -16,8 +16,8 @@
   </select>
   
   <insert id="fileBoardInsert" parameterType="com.example.demo.bean.FileBoardVO" keyProperty="b_no">
-    INSERT INTO file_board(title, content, writer) 
-    VALUES(#{title}, #{content}, #{writer})
+    INSERT INTO file_board(title, content, latitude, longitude, writer) 
+    VALUES(#{title}, #{content}, #{latitude}, #{longitude}, #{writer})
   </insert>
   
   <update id="fileBoardUpdate" parameterType="com.example.demo.bean.FileBoardVO">
@@ -55,5 +55,9 @@
   <update id="fileUpdate" parameterType="com.example.demo.bean.FileVO">
     UPDATE file SET filename=#{filename}, fileoriginname=#{fileoriginname}, fileurl=#{fileurl} WHERE b_no=#{b_no}
   </update>
+
+  <select id="getFileList" resultType="com.example.demo.bean.FileVO">
+    SELECT * FROM file
+  </select>
   
 </mapper>

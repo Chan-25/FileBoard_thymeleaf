@@ -36,14 +36,16 @@ public class FileBoardController {
     @Autowired
     FileBoardService fboardService;
 
-    private String fileUrl = "C:/Users/smhrd/Desktop/기업랩 과제/FileStorage/";
+    private String fileUrl = "C:/yeoboyaFileStorage/";
     
     @RequestMapping("/list")
     private String fileBoardList(Model model, HttpServletRequest request) {
 
         List<FileBoardVO> testList = new ArrayList<>();
         testList = fboardService.getFileBoardList();
+        List<FileVO> fileList = fboardService.getFileList();
         model.addAttribute("testlist", testList);
+        model.addAttribute("filelist", fileList);
         return "fileBoard/list";
     }
 
@@ -201,9 +203,10 @@ public class FileBoardController {
 
     @RequestMapping("/insertProc")
     private String fileBoardInsertProc(@ModelAttribute FileBoardVO board, @RequestPart MultipartFile
-        files, HttpServletRequest request) throws IllegalStateException, IOException, Exception 
+        files, HttpServletRequest request, Model model) throws IllegalStateException, IOException, Exception 
     {
-        System.out.println(board.getB_no());
+        System.out.println(board.getLatitude());
+        System.out.println(board.getLongitude());
         if(files.isEmpty()) 
         {
             fboardService.fileBoardInsert(board);
@@ -213,6 +216,13 @@ public class FileBoardController {
             String fileName = files.getOriginalFilename(); // 사용자 컴에 저장된 파일명 그대로
             //확장자
             String fileNameExtension = FilenameUtils.getExtension(fileName).toLowerCase();
+            if(!(fileNameExtension.equals("jpg") || fileNameExtension.equals("jpeg") || 
+                fileNameExtension.equals("png") || fileNameExtension.equals("gif")))
+            {
+                System.out.println(fileNameExtension);
+                model.addAttribute("fileStatus", false);
+                return "forward:/fileBoard/insert";
+            }
             File destinationFile; // DB에 저장할 파일 고유명
             String destinationFileName;
             //절대경로 설정 안해주면 지 맘대로 들어가버려서 절대경로 박아주었습니다.

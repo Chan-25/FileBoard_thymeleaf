@@ -19,4 +19,5 @@ public interface FileBoardService {
     int fileDelete(int b_no);
     int fileUpdate(FileVO file);
     int fileDetailUpdate(FileVO file);
+    List<FileVO> getFileList();
 }

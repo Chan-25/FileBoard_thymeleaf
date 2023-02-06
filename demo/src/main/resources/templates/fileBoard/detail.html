@@ -43,6 +43,7 @@
                             <p th:text="${detail.content}"></p>
                             <input type="hidden" th:field="${detail.content}">
                         </div>
+                        <div id="map" style="width: 600px; height: 400px;"></div>
                         <div style="text-align: right;">
                             <input type="submit" th:value="목록" th:formaction="@{/fileBoard/list}">
                             <input type="submit" th:value="수정" th:formaction="@{/fileBoard/update/{bno}(bno=${detail.b_no})}">
@@ -54,6 +55,29 @@
             <br/><br/><br/>
         </div>
 
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d06b4fa067db2ea2ef8139cb8bd3f6a2"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d06b4fa067db2ea2ef8139cb8bd3f6a2&libraries=services"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            let latitude = /*[[${detail.latitude}]]*/;
+            let longitude = /*[[${detail.longitude}]]*/;
+            /*]]>*/
+
+            var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+            mapOption = {
+                center: new kakao.maps.LatLng(latitude, longitude), // 지도의 중심좌표
+                level: 3 // 지도의 확대 레벨
+            };
+
+            // 지도를 생성합니다    
+            var map = new kakao.maps.Map(mapContainer, mapOption);
+
+            var coords = new kakao.maps.LatLng(latitude, longitude);
+
+            // 결과값으로 받은 위치를 마커로 표시합니다
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: coords
+            });
+        </script>
     </body>
 </html>

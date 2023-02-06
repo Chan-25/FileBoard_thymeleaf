@@ -27,6 +27,14 @@
                         <textarea th:field="*{content}" id="content" name="content" rows="15" cols="50"  placeholder="내용을 입력하세요" required="required"></textarea>
                     </div>
                     <div>
+                        <label for="address" style="font-weight: bolder;">주소</label>
+                        <input type="text" id="address" name="address" placeholder="주소를 입력하세요" required="required" style="width: 600px;">
+                        <input type="hidden" th:field="*{latitude}">
+                        <input type="hidden" th:field="*{longitude}">
+                        <button type="button" onclick="confirmAddr()"> 주소 확인 </button>
+                        <div id="map" style="width: 600px; height: 400px;"></div>
+                    </div>
+                    <div>
                         <input type="file" name="files">
                     </div>
                     <div style="text-align: right;">
@@ -39,6 +47,106 @@
         <br/><br/><br/>
         </div>
 
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d06b4fa067db2ea2ef8139cb8bd3f6a2"></script>
+        <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d06b4fa067db2ea2ef8139cb8bd3f6a2&libraries=services"></script>
+        <script th:inline="javascript">
+
+            /*<![CDATA[*/
+            let fileStatus = /*[[${fileStatus}]]*/;
+            /*]]>*/
+            console.log(fileStatus)
+            if (!fileStatus && fileStatus != null)
+            {
+                alert("파일타입이 맞지않습니다.\n(.jpg .jepg .png .gif)")
+            }
+            
+            let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+                mapOption = {
+                    center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+                    level: 3 // 지도의 확대 레벨
+                }; 
+
+            let map = new kakao.maps.Map(mapContainer, mapOption); //지도 생성 및 객체 리턴
+
+            // 주소-좌표 변환 객체를 생성합니다
+            var geocoder = new kakao.maps.services.Geocoder();
+
+            var marker = new kakao.maps.Marker(), // 클릭한 위치를 표시할 마커입니다
+                infowindow = new kakao.maps.InfoWindow({zindex:1}); // 클릭한 위치에 대한 주소를 표시할 인포윈도우입니다
+
+            let latitude = $('#latitude');
+            let longitude = $('#longitude');
+
+            function confirmAddr()
+            {
+
+                console.log($("#address").val())
+    
+                // 주소로 좌표를 검색합니다
+                geocoder.addressSearch($("#address").val(), function(result, status) {
+    
+                    // 정상적으로 검색이 완료됐으면 
+                    if (status === kakao.maps.services.Status.OK)
+                    {
+                        latitude.val(result[0].y);
+                        longitude.val(result[0].x);
+
+                        var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                        // 결과값으로 받은 위치를 마커로 표시합니다
+                        marker.setPosition(coords);
+                        marker.setMap(map);
+
+                        // 인포윈도우로 장소에 대한 설명을 표시합니다
+                        infowindow.setContent('<div style="width:150px;text-align:center;padding:6px 0;">현재 선택한 장소</div>')
+                        infowindow.open(map, marker);
+
+                        // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+                        map.setCenter(coords);
+                    }
+                    else
+                    {
+                        window.alert("주소가 정확하지 않습니다!")
+                    }
+
+                });    
+            }
+
+            // 지도를 클릭했을 때 클릭 위치 좌표에 대한 주소정보를 표시하도록 이벤트를 등록합니다
+            kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+                searchDetailAddrFromCoords(mouseEvent.latLng, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        var detailAddr = !!result[0].road_address ? '<div>도로명주소 : ' + result[0].road_address.address_name + '</div>' : '';
+                        detailAddr += '<div>지번 주소 : ' + result[0].address.address_name + '</div>';
+                        
+                        var content = '<div class="bAddr">' +
+                                        '<span class="title">법정동 주소정보</span>' + 
+                                        detailAddr + 
+                                    '</div>';
+
+                        $('#address').val(result[0].address.address_name)
+                        geocoder.addressSearch(result[0].address.address_name, function(res, stat){
+                            latitude.val(res[0].y)
+                            longitude.val(res[0].x)
+                        })
+                        
+                        // 마커를 클릭한 위치에 표시합니다 
+                        marker.setPosition(mouseEvent.latLng);
+                        marker.setMap(map);
+
+                        // 인포윈도우에 클릭한 위치에 대한 법정동 상세 주소정보를 표시합니다
+                        infowindow.setContent(content);
+                        infowindow.open(map, marker);
+                    }   
+                });
+            });
+
+
+            function searchDetailAddrFromCoords(coords, callback) {
+                // 좌표로 법정동 상세 주소 정보를 요청합니다
+                geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
+            }
+
+        </script>
     </body>
 </html>

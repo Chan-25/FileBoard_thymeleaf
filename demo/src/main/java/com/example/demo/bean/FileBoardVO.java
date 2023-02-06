@@ -14,6 +14,8 @@ public class FileBoardVO {
   private int b_no;
   private String title;
   private String content;
+  private double latitude;
+  private double longitude;
   private String writer;
   private Date reg_date;
 }

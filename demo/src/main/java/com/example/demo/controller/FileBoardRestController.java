@@ -16,7 +16,7 @@ public class FileBoardRestController {
     @Autowired
     FileBoardService fileBoardService;
 
-    private String fileUrl = "C:/Users/smhrd/Desktop/기업랩 과제/FileStorage/";
+    private String fileUrl = "C:/yeoboyaFileStorage/";
 
     @RequestMapping("/deleteFileJ/{b_no}")
     private void delFileJ(@PathVariable int b_no)

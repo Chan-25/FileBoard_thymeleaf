@@ -46,10 +46,106 @@
         <div style="text-align: right;">
             <button onclick="location.href='/fileBoard/insert'">글작성</button>
         </div>
+
+        <div id="map" style="width: 100%; height: 400px;"></div>
         
         <br/><br/><br/>
     </div>
 
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d06b4fa067db2ea2ef8139cb8bd3f6a2"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d06b4fa067db2ea2ef8139cb8bd3f6a2&libraries=services"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        let board_list = /*[[${testlist}]]*/;
+        let file_list = /*[[${filelist}]]*/;
+        /*]]>*/
+
+        console.log(board_list)
+        console.log(file_list)
+
+        let board_file_match_list = {};
+
+        for (let i = 0; i < file_list.length; i++)
+        {
+            for (let j = 0; j < file_list.length; j++)
+            {
+                if(board_list[i].b_no == file_list[j].b_no)
+                {
+                    board_file_match_list[i] = j;
+                }
+            }
+        }
+
+        console.log(board_file_match_list)
+
+        let latitude_avg = 0;
+        let longitude_avg = 0;
+        
+        for (let i = 0; i < board_list.length; i++) {
+            latitude_avg += board_list[i].latitude;
+            longitude_avg += board_list[i].longitude;
+        }
+
+        latitude_avg = latitude_avg / board_list.length;
+        longitude_avg = longitude_avg / board_list.length;
+
+        var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+            center: new kakao.maps.LatLng(latitude_avg, longitude_avg), // 지도의 중심좌표
+            level: 7 // 지도의 확대 레벨
+        };
+        
+        // 지도를 생성합니다    
+        var map = new kakao.maps.Map(mapContainer, mapOption);
+
+        let marker_list = []
+        let infowindow_list = []
+    
+        for(let i = 0; i < board_list.length; i++)
+        {
+            let latitude = board_list[i].latitude;
+            let longitude = board_list[i].longitude;
+
+            var coords = new kakao.maps.LatLng(latitude, longitude);
+
+            // 결과값으로 받은 위치를 마커로 표시합니다
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: coords,
+                clickable: true
+            });
+
+            marker_list.push(marker);
+
+            console.log(file_list[board_file_match_list[i]].fileurl)
+
+            var iwContent = '<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 200px;">' + 
+                            '<div style="padding:5px; padding-top:15px; display: flex; justify-content: center; align-items: center;">'+board_list[i].title+'</div>'+
+                            '<img src="'+file_list[board_file_match_list[i]].fileurl+file_list[board_file_match_list[i]].filename+'" style="width: 200px; height: 200px;" />'+
+                            '</div>', // 인포윈도우에 표출될 내용으로 HTML 문자열이나 document element가 가능합니다
+                iwRemoveable = true; // removeable 속성을 ture 로 설정하면 인포윈도우를 닫을 수 있는 x버튼이 표시됩니다
+
+            // 인포윈도우를 생성합니다
+            var infowindow = new kakao.maps.InfoWindow({
+                content : iwContent,
+                removable : iwRemoveable
+            });
+
+            infowindow_list.push(infowindow)
+
+        }
+
+        let markerVisibleStatusList = [];
+
+        for (let i = 0; i < marker_list.length; i++) {
+            kakao.maps.event.addListener(marker_list[i], 'click', function() {
+                markerVisibleStatusList.push(true);
+                // 마커 위에 인포윈도우를 표시합니다
+                infowindow_list[i].open(map, marker_list[i]);
+                //marker_list[i].setVisible(markerVisibleStatusList[i]);
+                markerVisibleStatusList[i] = !markerVisibleStatusList[i]
+            });
+        }
+
+    </script>
 </body>
 </html>
